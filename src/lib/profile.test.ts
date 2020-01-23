@@ -96,10 +96,10 @@ function verifyProfile(profile: Profile) {
 
   expect(toStackList(profile, true)).toEqual([
     // prettier-ignore
-    'a;b;e',
-    'a;b;b',
-    'a;b;c',
     'a;b;d',
+    'a;b;c',
+    'a;b;b',
+    'a;b;e',
     'a;b',
     'a',
   ])
@@ -120,9 +120,9 @@ function verifyProfile(profile: Profile) {
 
   expect(toStackList(flattened, true)).toEqual([
     // prettier-ignore
-    'a;b;e',
-    'a;b;c',
     'a;b;d',
+    'a;b;c',
+    'a;b;e',
     'a;b',
     'a',
   ])
