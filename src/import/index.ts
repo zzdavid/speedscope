@@ -20,6 +20,7 @@ import {importAsPprofProfile} from './pprof'
 import {decodeBase64} from '../lib/utils'
 import {importFromChromeHeapProfile} from './v8heapalloc'
 import {isTraceEventFormatted, importTraceEvents} from './trace-event'
+import {importDIPSProfiling, isDIPSProfiling} from './dips-profiling'
 
 export async function importProfileGroupFromText(
   fileName: string,
@@ -131,6 +132,9 @@ async function _importProfileGroup(dataSource: ProfileDataSource): Promise<Profi
   } else if (fileName.endsWith('.heapprofile')) {
     console.log('Importing as Chrome Heap Profile')
     return toGroup(importFromChromeHeapProfile(JSON.parse(contents)))
+  } else if (fileName.toLowerCase().endsWith('-profiling.log') || fileName.toLowerCase().endsWith('-profiling.csv')) {
+    console.log('Importing as DIPS Profile')
+    return importDIPSProfiling(contents)
   }
 
   // Second pass: Try to guess what file format it is based on structure
@@ -186,6 +190,11 @@ async function _importProfileGroup(dataSource: ProfileDataSource): Promise<Profi
     if (lineCount >= 1 && lineCount === contents.split(/ \d+\r?\n/).length) {
       console.log('Importing as collapsed stack format')
       return toGroup(importFromBGFlameGraph(contents))
+    }
+
+    if (isDIPSProfiling(contents)) {
+      console.log('Importing as DIPS Profile')
+      return importDIPSProfiling(contents)      
     }
 
     const fromLinuxPerf = importFromLinuxPerf(contents)
