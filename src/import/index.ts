@@ -15,7 +15,7 @@ import {importSpeedscopeProfiles} from '../lib/file-format'
 import {importFromV8ProfLog} from './v8proflog'
 import {importFromLinuxPerf} from './linux-tools-perf'
 import {importFromHaskell} from './haskell'
-import {ProfileDataSource, TextProfileDataSource, MaybeCompressedDataReader} from './utils'
+import {ProfileDataSource, TextProfileDataSource, MaybeCompressedDataReader, MultiFileDataSource} from './utils'
 import {importAsPprofProfile} from './pprof'
 import {decodeBase64} from '../lib/utils'
 import {importFromChromeHeapProfile} from './v8heapalloc'
@@ -36,6 +36,9 @@ export async function importProfileGroupFromBase64(
   return await importProfileGroup(
     MaybeCompressedDataReader.fromArrayBuffer(fileName, decodeBase64(b64contents).buffer),
   )
+}
+export async function importProfilesFromFiles(files: FileList): Promise<ProfileGroup | null> {
+  return importProfileGroup(MultiFileDataSource.fromFiles(files))
 }
 
 export async function importProfilesFromFile(file: File): Promise<ProfileGroup | null> {
@@ -134,7 +137,7 @@ async function _importProfileGroup(dataSource: ProfileDataSource): Promise<Profi
     return toGroup(importFromChromeHeapProfile(JSON.parse(contents)))
   } else if (fileName.toLowerCase().endsWith('-profiling.log') || fileName.toLowerCase().endsWith('-profiling.csv')) {
     console.log('Importing as DIPS Profile')
-    return importDIPSProfiling(contents)
+    return await importDIPSProfiling(dataSource)
   }
 
   // Second pass: Try to guess what file format it is based on structure
@@ -194,7 +197,7 @@ async function _importProfileGroup(dataSource: ProfileDataSource): Promise<Profi
 
     if (isDIPSProfiling(contents)) {
       console.log('Importing as DIPS Profile')
-      return importDIPSProfiling(contents)      
+      return await importDIPSProfiling(dataSource)
     }
 
     const fromLinuxPerf = importFromLinuxPerf(contents)

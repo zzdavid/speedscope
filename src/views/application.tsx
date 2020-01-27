@@ -40,6 +40,9 @@ async function importProfilesFromArrayBuffer(
   return (await importModule).importProfilesFromArrayBuffer(fileName, contents)
 }
 
+async function importProfilesFromFiles(files: FileList): Promise<ProfileGroup | null> {
+  return (await importModule).importProfilesFromFiles(files)
+}
 async function importProfilesFromFile(file: File): Promise<ProfileGroup | null> {
   return (await importModule).importProfilesFromFile(file)
 }
@@ -344,13 +347,17 @@ export class Application extends StatelessComponent<ApplicationProps> {
     this.props.setLoading(false)
   }
 
-  loadFromFile(file: File) {
+  loadFromFiles(files: FileList) {
     this.loadProfile(async () => {
-      const profiles = await importProfilesFromFile(file)
+      let profiles : ProfileGroup | null = null
+      if (files.length > 1)
+        profiles = await importProfilesFromFiles(files)
+      else
+        profiles = await importProfilesFromFile(files[0])
       if (profiles) {
         for (let profile of profiles.profiles) {
           if (!profile.getName()) {
-            profile.setName(file.name)
+            profile.setName(files[0].name)
           }
         }
         return profiles
@@ -370,7 +377,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
             resolve(reader.result)
           })
         })
-        reader.readAsText(file)
+        reader.readAsText(files[0])
         const fileContents = await fileContentsPromise
 
         const map = importEmscriptenSymbolMap(fileContents)
@@ -420,7 +427,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
 
     let file: File | null = ev.dataTransfer.files.item(0)
     if (file) {
-      this.loadFromFile(file)
+      this.loadFromFiles(ev.dataTransfer.files)
     }
   }
 
@@ -548,7 +555,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
   onFileSelect = (ev: Event) => {
     const file = (ev.target as HTMLInputElement).files!.item(0)
     if (file) {
-      this.loadFromFile(file)
+      this.loadFromFiles((ev.target as HTMLInputElement).files!)
     }
   }
 

@@ -1,4 +1,5 @@
 import {CallTreeProfileBuilder, ProfileGroup, FrameInfo} from '../lib/profile'
+import {ProfileDataSource} from '../import/utils'
 
 // Custom import for DIPS profiling logs
 
@@ -164,7 +165,9 @@ function addFrames(call: ProfCall, builder: MyBuilder, parent_end: number) {
   }
 }
 
-export function importDIPSProfiling(contents: string): ProfileGroup | null {
+export async function importDIPSProfiling(dataSource: ProfileDataSource): Promise<ProfileGroup | null> {
+  let contents = await dataSource.readAsText()
+
   const calls = contents.split('\r\n')
                         .filter(s => s.startsWith('1;'))
                         .map(parseCall)

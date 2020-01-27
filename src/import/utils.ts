@@ -24,6 +24,28 @@ export class TextProfileDataSource implements ProfileDataSource {
   }
 }
 
+export class MultiFileDataSource implements ProfileDataSource {
+  public dataSources : ProfileDataSource[]
+  
+  private constructor(_dataSources: ProfileDataSource[]) {
+    this.dataSources = _dataSources
+  }
+  
+  async name() {
+    return this.dataSources[0].name()
+  }
+  async readAsArrayBuffer() {
+    return this.dataSources[0].readAsArrayBuffer()
+  }
+  async readAsText() {
+    return this.dataSources[0].readAsText()
+  }
+
+  static fromFiles(files: FileList): MultiFileDataSource {
+    return new MultiFileDataSource([...files].map(f => MaybeCompressedDataReader.fromFile(f)))
+  }
+}
+
 export class MaybeCompressedDataReader implements ProfileDataSource {
   private uncompressedData: Promise<ArrayBuffer>
 
