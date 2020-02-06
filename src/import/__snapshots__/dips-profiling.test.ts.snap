@@ -1,53 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`importDIPSProfiling 1`] = `
-Object {
-  "frames": Array [
-    Frame {
-      "col": undefined,
-      "file": "App-58@vt-irq0-srv01",
-      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync",
-      "line": undefined,
-      "name": "DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync",
-      "selfWeight": 0,
-      "totalWeight": 49,
-    },
-    Frame {
-      "col": undefined,
-      "file": "App-58@vt-irq0-srv01",
-      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync",
-      "line": undefined,
-      "name": "DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync",
-      "selfWeight": 0,
-      "totalWeight": 49,
-    },
-    Frame {
-      "col": undefined,
-      "file": "App-58@vt-irq0-srv01",
-      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditEventPublisher/PostAuditEventAsync",
-      "line": undefined,
-      "name": "DFS/FS/AuditEventPublisher/PostAuditEventAsync",
-      "selfWeight": 2,
-      "totalWeight": 49,
-    },
-    Frame {
-      "col": undefined,
-      "file": "App-58@vt-irq0-srv01",
-      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditEventPublisher/PostAuditEventAsync.HttpCall",
-      "line": undefined,
-      "name": "DFS/FS/AuditEventPublisher/PostAuditEventAsync.HttpCall",
-      "selfWeight": 47,
-      "totalWeight": 47,
-    },
-  ],
-  "name": "Group 1",
-  "stacks": Array [
-    "DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync;DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync;DFS/FS/AuditEventPublisher/PostAuditEventAsync 2",
-    "DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync;DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync;DFS/FS/AuditEventPublisher/PostAuditEventAsync;DFS/FS/AuditEventPublisher/PostAuditEventAsync.HttpCall 47",
-  ],
-}
-`;
-
 exports[`importDIPSProfiling error out of order 1`] = `
 Object {
   "frames": Array [
@@ -281,6 +233,54 @@ exports[`importDIPSProfiling error out of order: indexToView 1`] = `0`;
 
 exports[`importDIPSProfiling error out of order: profileGroup.name 1`] = `"out-of-order-profiling.log"`;
 
-exports[`importDIPSProfiling: indexToView 1`] = `0`;
+exports[`importDIPSProfiling simple 1`] = `
+Object {
+  "frames": Array [
+    Frame {
+      "col": undefined,
+      "file": "App-58@vt-irq0-srv01",
+      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync",
+      "line": undefined,
+      "name": "DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync",
+      "selfWeight": 0,
+      "totalWeight": 49,
+    },
+    Frame {
+      "col": undefined,
+      "file": "App-58@vt-irq0-srv01",
+      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync",
+      "line": undefined,
+      "name": "DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync",
+      "selfWeight": 0,
+      "totalWeight": 49,
+    },
+    Frame {
+      "col": undefined,
+      "file": "App-58@vt-irq0-srv01",
+      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditEventPublisher/PostAuditEventAsync",
+      "line": undefined,
+      "name": "DFS/FS/AuditEventPublisher/PostAuditEventAsync",
+      "selfWeight": 2,
+      "totalWeight": 49,
+    },
+    Frame {
+      "col": undefined,
+      "file": "App-58@vt-irq0-srv01",
+      "key": "App-58@vt-irq0-srv01;DFS/FS/AuditEventPublisher/PostAuditEventAsync.HttpCall",
+      "line": undefined,
+      "name": "DFS/FS/AuditEventPublisher/PostAuditEventAsync.HttpCall",
+      "selfWeight": 47,
+      "totalWeight": 47,
+    },
+  ],
+  "name": "Group 1",
+  "stacks": Array [
+    "DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync;DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync;DFS/FS/AuditEventPublisher/PostAuditEventAsync 2",
+    "DFS/FS/AuditFhirFormatBatchPublisher/PublishAllAuditEventsAsync;DFS/FS/AuditFhirFormatBatchPublisher/PublishLogsInternalAsync;DFS/FS/AuditEventPublisher/PostAuditEventAsync;DFS/FS/AuditEventPublisher/PostAuditEventAsync.HttpCall 47",
+  ],
+}
+`;
 
-exports[`importDIPSProfiling: profileGroup.name 1`] = `"simple-profiling.log"`;
+exports[`importDIPSProfiling simple: indexToView 1`] = `0`;
+
+exports[`importDIPSProfiling simple: profileGroup.name 1`] = `"simple-profiling.log"`;
