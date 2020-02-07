@@ -15,6 +15,8 @@ import {FlamechartViewState} from '../store/flamechart-view-state'
 import {CanvasContext} from '../gl/canvas-context'
 import {Graphics} from '../gl/graphics'
 
+const dipsLogoUrl = require('../../assets/logo-dips.png')
+
 const importModule = import('../import')
 // Force eager loading of the module
 importModule.then(() => {})
@@ -563,6 +565,19 @@ export class Application extends StatelessComponent<ApplicationProps> {
     return (
       <div className={css(style.landingContainer)}>
         <div className={css(style.landingMessage)}>
+          <p className={css(style.dipsHeader)}>
+              Works with <img src={dipsLogoUrl} title="DIPS" height="24"/>
+          </p>
+          <p className={css(style.dipsMessage)}>
+            You can drop DIPS profiling files here. If you drop more than one, I will guess 
+            which on to start with. I only show calls from the first file but add frames
+            from the other files.
+          </p>
+          <p className={css(style.dipsMessage)}>
+            Speedscope can't show simultaneous calls. If there are simultaneous calls in the profile, they
+            are put in "groups". "Group 1 (1/N)" is shown at the top, and you can switch between them.
+          </p>
+          <hr/>
           <p className={css(style.landingP)}>
             👋 Hi there! Welcome to 🔬speedscope, an interactive{' '}
             <a
@@ -756,6 +771,17 @@ const style = StyleSheet.create({
     overflow: 'hidden',
     flexDirection: 'column',
     flex: 1,
+  },
+  dipsMessage: {
+    marginBottom: '35px',
+    p: {
+      marginBottom: '35px'
+    }
+  },
+  dipsHeader: {
+    marginBottom: '35px',
+    fontSize: '24px',
+    textAlign: 'center',
   },
   landingContainer: {
     display: 'flex',
