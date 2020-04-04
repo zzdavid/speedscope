@@ -154,6 +154,8 @@ function adjustToInterval(value: number, min: number, max: number) : number {
   return value
 }
 
+let s_log_count : number = 0
+
 function addFrames(call: ProfCall, builder: MyBuilder, parent_end: number) {
   const app = `App-${call.appID}@${call.host}`
 
@@ -169,6 +171,18 @@ function addFrames(call: ProfCall, builder: MyBuilder, parent_end: number) {
   let start = adjustToInterval(call.at, builder.lastEventAt, parent_end)
   let end = adjustToInterval(start + call.elapsed, start, parent_end)
 
+  // Debug logging
+  const delta_at = start - call.at
+  const delta_elapsed = (end - start) - call.elapsed
+
+  if ((delta_at != 0 || delta_elapsed != 0) && s_log_count < 50) {
+    console.log(`CallId ${call.callID} adjusted to ${start} (diff:${delta_at}), elapsed ${start-end} (diff:${delta_elapsed})  ${call.context}`)
+    s_log_count++;
+    if (s_log_count == 50)
+      console.log('Logging of adjusted frames stopped after 50 rows...')
+  }
+
+  // Add frames
   try {
     builder.enterFrame(frameInfo, start)
 
