@@ -24,17 +24,39 @@ export interface FrameInfo {
   col?: number
 }
 
+
+class Sample {
+  constructor(readonly from: number, readonly to: number) {}
+}
+
 export class HasWeights {
   private selfWeight = 0
   private totalWeight = 0
+  private samples: Sample[] = []
+
   getSelfWeight() {
     return this.selfWeight
   }
   getTotalWeight() {
     return this.totalWeight
   }
-  addToTotalWeight(delta: number) {
+  recalculateTotalWeight(from: number, to: number) {
+    let total = 0
+    for (let sample of this.samples) {
+      if (sample.to > from && sample.from < to) {
+        total += Math.min(sample.to - from,
+                          sample.to - sample.from,
+                          to - from,
+                          to - sample.from)
+      }
+    }
+    this.totalWeight = total
+  }
+  addToTotalWeight(delta: number, at: number) {
     this.totalWeight += delta
+    if (delta > 0) {
+      this.samples.push(new Sample(at, at+delta))
+    }
   }
   addToSelfWeight(delta: number) {
     this.selfWeight += delta
@@ -110,6 +132,9 @@ export interface ProfileGroup {
 }
 
 export class Profile {
+  public filteredFromTime? : number
+  public filteredToTime? : number
+
   protected name: string = ''
 
   protected totalWeight: number
@@ -167,6 +192,19 @@ export class Profile {
       )
     }
     return this.totalNonIdleWeight
+  }
+
+  recalculateGroupedTotalsInInterval(from: number, to: number) {
+    function visit(node: CallTreeNode) {
+      if (node.frame !== Frame.root) {
+        node.recalculateTotalWeight(from, to)
+      }
+      node.children.forEach(visit)
+    }
+    visit(this.groupedCalltreeRoot)
+    this.totalNonIdleWeight = null
+    this.filteredFromTime = from
+    this.filteredToTime = to
   }
 
   forEachCallGrouped(
@@ -407,7 +445,7 @@ export class Profile {
 }
 
 export class StackListProfileBuilder extends Profile {
-  _appendSample(stack: FrameInfo[], weight: number, useAppendOrder: boolean) {
+  _appendSample(stack: FrameInfo[], weight: number, at: number, useAppendOrder: boolean) {
     if (isNaN(weight)) throw new Error('invalid weight')
     let node = useAppendOrder ? this.appendOrderCalltreeRoot : this.groupedCalltreeRoot
 
@@ -425,7 +463,7 @@ export class StackListProfileBuilder extends Profile {
         node = new CallTreeNode(frame, node)
         parent.children.push(node)
       }
-      node.addToTotalWeight(weight)
+      node.addToTotalWeight(weight, at)
 
       // It's possible for the same frame to occur multiple
       // times in the same call stack due to either direct
@@ -447,7 +485,7 @@ export class StackListProfileBuilder extends Profile {
       node.frame.addToSelfWeight(weight)
 
       for (let frame of framesInStack) {
-        frame.addToTotalWeight(weight)
+        frame.addToTotalWeight(weight, at)
       }
 
       if (node === lastOf(this.samples)) {
@@ -459,6 +497,8 @@ export class StackListProfileBuilder extends Profile {
     }
   }
 
+  private lastSampleEnd: number = 0
+
   appendSampleWithWeight(stack: FrameInfo[], weight: number) {
     if (weight === 0) {
       // Samples with zero weight have no effect, so let's ignore them
@@ -468,8 +508,10 @@ export class StackListProfileBuilder extends Profile {
       throw new Error('Samples must have positive weights')
     }
 
-    this._appendSample(stack, weight, true)
-    this._appendSample(stack, weight, false)
+    this._appendSample(stack, weight, this.lastSampleEnd, true)
+    this._appendSample(stack, weight, this.lastSampleEnd, false)
+
+    this.lastSampleEnd += weight
   }
 
   private pendingSample: {
@@ -525,7 +567,7 @@ export class CallTreeProfileBuilder extends Profile {
   private addWeightsToFrames(value: number) {
     const delta = value - this.lastValue
     for (let frame of this.framesInStack.keys()) {
-      frame.addToTotalWeight(delta)
+      frame.addToTotalWeight(delta, this.lastValue)
     }
     const stackTop = lastOf(this.stack)
     if (stackTop) {
@@ -535,7 +577,7 @@ export class CallTreeProfileBuilder extends Profile {
   private addWeightsToNodes(value: number, stack: CallTreeNode[]) {
     const delta = value - this.lastValue
     for (let node of stack) {
-      node.addToTotalWeight(delta)
+      node.addToTotalWeight(delta, this.lastValue)
     }
     const stackTop = lastOf(stack)
     if (stackTop) {

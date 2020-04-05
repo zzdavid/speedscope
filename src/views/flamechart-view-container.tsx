@@ -154,9 +154,13 @@ export const getLeftHeavyFlamechart = memoizeByShallowEquality(
   ({
     profile,
     getColorBucketForFrame,
+    fromTime,
+    toTime
   }: {
     profile: Profile
     getColorBucketForFrame: (frame: Frame) => number
+    fromTime : number
+    toTime : number
   }): Flamechart => {
     return new Flamechart({
       getTotalWeight: profile.getTotalNonIdleWeight.bind(profile),
@@ -174,7 +178,15 @@ export const LeftHeavyFlamechartView = createContainer(
   (state: ApplicationState, dispatch: Dispatch, ownProps: FlamechartViewContainerProps) => {
     const {activeProfileState, glCanvas} = ownProps
 
-    const {index, profile, leftHeavyViewState} = activeProfileState
+    const {index, profile, leftHeavyViewState, chronoViewState} = activeProfileState
+
+    const fromTime = chronoViewState.configSpaceViewportRect.origin.x
+    const toTime = fromTime + chronoViewState.configSpaceViewportRect.size.x
+
+    if (profile.filteredFromTime != fromTime || profile.filteredToTime != toTime) {
+      profile.recalculateGroupedTotalsInInterval(fromTime, toTime)
+      leftHeavyViewState.configSpaceViewportRect = Rect.empty
+    }
 
     const canvasContext = getCanvasContext(glCanvas)
     const frameToColorBucket = getFrameToColorBucket(profile)
@@ -184,6 +196,8 @@ export const LeftHeavyFlamechartView = createContainer(
     const flamechart = getLeftHeavyFlamechart({
       profile,
       getColorBucketForFrame,
+      fromTime,
+      toTime
     })
     const flamechartRenderer = getLeftHeavyFlamechartRenderer({
       canvasContext,
