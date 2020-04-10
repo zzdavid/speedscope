@@ -569,9 +569,11 @@ export class Application extends StatelessComponent<ApplicationProps> {
               Works with <img src={dipsLogoUrl} title="DIPS" height="24"/>
           </p>
           <p className={css(style.dipsMessage)}>
-            You can drop DIPS profiling files here. If you drop more than one, I will guess 
-            which on to start with. I only show calls from the first file but add frames
-            from the other files.
+            You can drop DIPS profiling files here.
+          </p>
+          <p className={css(style.dipsMessage)}>
+            If you drop more than one file, I will guess which on to start with. Only calls from
+            the first file are shown but with frames added from the other files.
           </p>
           <p className={css(style.dipsMessage)}>
             Speedscope can't show simultaneous calls. If there are simultaneous calls in the profile, they
