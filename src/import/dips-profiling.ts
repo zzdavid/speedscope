@@ -321,5 +321,29 @@ export function isDIPSProfiling(contents: string): boolean {
   const row = contents.split('\r\n')[0]
   const cols = row.split(';')
 
-  return cols.length == 21
+  if (cols.length <= ColContext) {
+    return false;
+  }
+
+  // Timestamp 20191107120357753
+  if (!/\d{17}/.test(cols[ColTimestamp])) {
+    return false;
+  }
+
+  // Elapsed number >= 0
+  if (!/\d+/.test(cols[ColElapsed])) {
+    return false;
+  }
+
+  // CallID exists
+  if (cols[ColCallID].trim().length == 0) {
+    return false;
+  }
+
+  // RootCallId exists
+  if (cols[ColRootCallID].trim().length == 0) {
+    return false;
+  }
+
+  return true;
 }
