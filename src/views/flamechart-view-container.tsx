@@ -15,8 +15,9 @@ import {
   getFrameToColorBucket,
 } from '../store/getters'
 import {ActiveProfileState} from './application'
-import {Vec2, Rect} from '../lib/math'
+import {Vec2, Rect, AffineTransform} from '../lib/math'
 import {actions} from '../store/actions'
+import { FlamechartMinimapView } from './flamechart-minimap-view'
 
 interface FlamechartSetters {
   setLogicalSpaceViewportSize: (logicalSpaceViewportSize: Vec2) => void
@@ -213,5 +214,38 @@ export const LeftHeavyFlamechartView = createContainer(
       ...createFlamechartSetters(dispatch, FlamechartID.LEFT_HEAVY, index),
       ...leftHeavyViewState,
     }
+  },
+)
+
+export const TopLevelChronoMinimapView = createContainer(
+  FlamechartMinimapView,
+  (state: ApplicationState, dispatch: Dispatch, ownProps: FlamechartViewContainerProps) => {
+    const {activeProfileState, glCanvas} = ownProps
+    const {index, profile, chronoViewState} = activeProfileState
+
+    const canvasContext = getCanvasContext(glCanvas)
+    const frameToColorBucket = getFrameToColorBucket(profile)
+    const getColorBucketForFrame = createGetColorBucketForFrame(frameToColorBucket)
+
+    const flamechart = getChronoViewFlamechart({profile, getColorBucketForFrame})
+    const flamechartRenderer = getChronoViewFlamechartRenderer({
+      canvasContext,
+      flamechart,
+    })
+
+    const configSpaceViewportRect = chronoViewState.configSpaceViewportRect
+    const transformViewport = (transform: AffineTransform) => { }
+    const setters = createFlamechartSetters(dispatch, FlamechartID.CHRONO, index)
+    const {setConfigSpaceViewportRect} = setters
+
+    return {
+      flamechart,
+      configSpaceViewportRect,
+      canvasContext,
+      flamechartRenderer,
+
+      transformViewport,
+      setConfigSpaceViewportRect
+    }  
   },
 )

@@ -19,6 +19,9 @@ export namespace actions {
   // Set which top-level view should be displayed
   export const setViewMode = actionCreator<ViewMode>('setViewMode')
 
+  // Set whether timeline map should be visible
+  export const setTimelineMapVisible = actionCreator<boolean>('setTimelineMapVisible')
+
   // Set whether or not recursion should be flattened when viewing flamegraphs
   export const setFlattenRecursion = actionCreator<boolean>('setFlattenRecursion')
 

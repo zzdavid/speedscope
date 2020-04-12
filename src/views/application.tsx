@@ -3,17 +3,19 @@ import {StyleSheet, css} from 'aphrodite'
 import {FileSystemDirectoryEntry} from '../import/file-system-entry'
 
 import {Profile, ProfileGroup} from '../lib/profile'
-import {FontFamily, FontSize, Colors, Sizes, Duration} from './style'
+import {FontFamily, FontSize, Colors, Sizes, Duration, commonStyle} from './style'
 import {importEmscriptenSymbolMap} from '../lib/emscripten'
 import {SandwichViewContainer} from './sandwich-view'
 import {saveToFile} from '../lib/file-format'
 import {ApplicationState, ViewMode, canUseXHR} from '../store'
 import {StatelessComponent} from '../lib/typed-redux'
-import {LeftHeavyFlamechartView, ChronoFlamechartView} from './flamechart-view-container'
+import {LeftHeavyFlamechartView, ChronoFlamechartView, TopLevelChronoMinimapView} from './flamechart-view-container'
 import {SandwichViewState} from '../store/sandwich-view-state'
 import {FlamechartViewState} from '../store/flamechart-view-state'
 import {CanvasContext} from '../gl/canvas-context'
 import {Graphics} from '../gl/graphics'
+
+import * as flamechart_style from './flamechart-style'
 
 const dipsLogoUrl = require('../../assets/logo-dips.png')
 
@@ -73,8 +75,20 @@ export class Toolbar extends StatelessComponent<ToolbarProps> {
     this.props.setViewMode(ViewMode.SANDWICH_VIEW)
   }
 
+  toggleTimelineMapVisible = () => {
+    this.props.setTimelineMapVisible(!this.props.timelineMapVisible)
+    if (this.props.canvasContext)
+      this.props.canvasContext.requestFrame()
+  }
+
   renderLeftContent() {
     if (!this.props.activeProfileState) return null
+
+    const {chronoViewState, profile} = this.props.activeProfileState
+
+    const totalWidth = profile.getTotalWeight()
+    const scaledLeft = chronoViewState.configSpaceViewportRect.left() * (100 / totalWidth)
+    const scaledWidth = chronoViewState.configSpaceViewportRect.width() * (100 / totalWidth)
 
     return (
       <div className={css(style.toolbarLeft)}>
@@ -105,6 +119,15 @@ export class Toolbar extends StatelessComponent<ToolbarProps> {
         >
           <span className={css(style.emoji)}>🥪</span>Sandwich
         </div>
+
+        {(this.props.viewMode === ViewMode.LEFT_HEAVY_FLAME_GRAPH) &&
+          <div className={css(style.toolbarMinimap)} onClick={this.toggleTimelineMapVisible}>
+            <div className={css(style.toolbarMinimapSelection)}
+                  style={{width:scaledWidth, left:scaledLeft}}>
+              &nbsp;
+            </div>
+          </div>
+        }
       </div>
     )
   }
@@ -293,6 +316,7 @@ export type ApplicationProps = ApplicationState & {
   setViewMode: (viewMode: ViewMode) => void
   setFlattenRecursion: (flattenRecursion: boolean) => void
   setProfileIndexToView: (profileIndex: number) => void
+  setTimelineMapVisible: (timelineMapVisible: boolean) => void
   activeProfileState: ActiveProfileState | null
   canvasContext: CanvasContext | null
 }
@@ -661,7 +685,7 @@ export class Application extends StatelessComponent<ApplicationProps> {
   }
 
   renderContent() {
-    const {viewMode, activeProfileState, error, loading, glCanvas} = this.props
+    const {viewMode, activeProfileState, error, loading, glCanvas, timelineMapVisible} = this.props
 
     if (error) {
       return this.renderError()
@@ -681,7 +705,11 @@ export class Application extends StatelessComponent<ApplicationProps> {
       }
       case ViewMode.LEFT_HEAVY_FLAME_GRAPH: {
         return (
-          <LeftHeavyFlamechartView activeProfileState={activeProfileState} glCanvas={glCanvas} />
+          <div className={css(flamechart_style.style.fill, commonStyle.vbox)}>
+            {timelineMapVisible && 
+              <TopLevelChronoMinimapView activeProfileState={activeProfileState} glCanvas={glCanvas} />}
+            <LeftHeavyFlamechartView activeProfileState={activeProfileState} glCanvas={glCanvas} />
+          </div>
         )
       }
       case ViewMode.SANDWICH_VIEW: {
@@ -901,6 +929,34 @@ const style = StyleSheet.create({
       background: Colors.BRIGHT_BLUE,
     },
   },
+
+  toolbarMinimap: {
+    width: '102px',
+    background: Colors.GRAY,
+    marginTop: Sizes.SEPARATOR_HEIGHT+2,
+    height: Sizes.TOOLBAR_TAB_HEIGHT-7,
+    lineHeight: `${Sizes.TOOLBAR_TAB_HEIGHT}px`,
+    paddingBottom: 2,
+    display: 'inline-block',
+    borderLeft: '2px solid #B0B0B0',
+    borderRight: '2px solid #B0B0B0',
+    marginLeft: 20,
+    transition: `all ${Duration.HOVER_CHANGE} ease-in`,
+    ':hover': {
+      background: '#999999'
+    },
+  },
+
+  toolbarMinimapSelection: {
+    position: 'relative',
+    background: Colors.TRANSPARENT_GREEN,
+    lineHeight: `${Sizes.TOOLBAR_TAB_HEIGHT}px`,
+    display: 'inline-block',
+    borderLeft: '1px solid black',
+    borderRight: '1px solid black',
+    transition: `all ${Duration.HOVER_CHANGE} ease-in`,
+  },
+
   noLinkStyle: {
     textDecoration: 'none',
     color: 'inherit',

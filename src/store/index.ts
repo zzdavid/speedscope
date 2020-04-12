@@ -28,6 +28,7 @@ export interface ApplicationState {
   dragActive: boolean
   loading: boolean
   error: boolean
+  timelineMapVisible: boolean
 
   tableSortMethod: SortMethod
 
@@ -62,6 +63,8 @@ export function createApplicationStore(
     dragActive: setter<boolean>(actions.setDragActive, false),
     loading: setter<boolean>(actions.setLoading, loading),
     error: setter<boolean>(actions.setError, false),
+
+    timelineMapVisible: setter<boolean>(actions.setTimelineMapVisible, false),
 
     tableSortMethod: setter<SortMethod>(actions.sandwichView.setTableSortMethod, {
       field: SortField.SELF,

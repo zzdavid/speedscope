@@ -151,6 +151,11 @@ export class FlamechartPanZoomView extends Component<FlamechartPanZoomViewProps,
   private renderOverlays() {
     const ctx = this.overlayCtx
     if (!ctx) return
+
+    const physicalViewSize = this.physicalViewSize()
+
+    ctx.clearRect(0, 0, physicalViewSize.x, physicalViewSize.y)
+
     if (this.props.configSpaceViewportRect.isEmpty()) return
 
     const configToPhysical = this.configSpaceToPhysicalViewSpace()
@@ -158,10 +163,6 @@ export class FlamechartPanZoomView extends Component<FlamechartPanZoomViewProps,
     const physicalViewSpaceFontSize = FontSize.LABEL * window.devicePixelRatio
     const physicalViewSpaceFrameHeight =
       this.LOGICAL_VIEW_SPACE_FRAME_HEIGHT * window.devicePixelRatio
-
-    const physicalViewSize = this.physicalViewSize()
-
-    ctx.clearRect(0, 0, physicalViewSize.x, physicalViewSize.y)
 
     if (this.hoveredLabel) {
       let color = Colors.DARK_GRAY

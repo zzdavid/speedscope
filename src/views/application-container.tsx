@@ -38,6 +38,7 @@ export const ApplicationContainer = createContainer(
       setViewMode: wrapActionCreator(actions.setViewMode),
       setFlattenRecursion: wrapActionCreator(actions.setFlattenRecursion),
       setProfileIndexToView: wrapActionCreator(actions.setProfileIndexToView),
+      setTimelineMapVisible: wrapActionCreator(actions.setTimelineMapVisible),
     }
 
     return {
